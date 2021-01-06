@@ -1,6 +1,6 @@
 {
   "name": "insomna-plugin-aws-auth",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Plugin for Insomnia to provide Cognito JWT token from AWS",
   "main": "./src/plugin.js",
   "scripts": {
@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "aws-sdk": "^2.822.0",
-    "aws4": "^1.11.0"
+    "aws4": "^1.8.0"
   },
   "bugs": {
     "url": "https://github.com/mjhatamy/insomnia-plugin-aws-auth/issues"

@@ -52,6 +52,8 @@ module.exports.workspaceActions = [
                 workspace: models.workspace,
             });
             //fs.WriteFileSync('/users/user/Desktop/export.json', ex);
+            console.log("Dialog")
+            context.app.editTag();
         }
     }
 ];
@@ -76,7 +78,6 @@ module.exports.requestGroupActions = [
 ];
 
 module.exports.requestHooks = [ async (context) => {
-    console.log("Request Hook");
     const requestSigningParamsString = await context.store.getItem("AwsUserSigningParams");
     if(typeof(requestSigningParamsString) === 'undefined'){
         throw Error(`Context.Store.getItem does not contain key: 'AwsUserSigningParams' `);
@@ -88,6 +89,17 @@ module.exports.requestHooks = [ async (context) => {
         console.error(`Failed to parse results. error: ${JSON.stringify(e)}`);
         throw e;
     }
+
+    // enableAWSAuth
+    let enableAWSAuth = context.request.getHeader('enableAWSAuth');
+    if(typeof(enableAWSAuth) === 'undefined' || enableAWSAuth == null ) {
+        console.log("Not set to add authorization headers")
+        //return;
+    }
+    //context.request.removeHeader('enableAWSAuth');
+
+    //console.log("context.request: " + JSON.stringify(context.request.getHeaders(), null, 4))
+    //console.log("enableAWSAuth: " + enableAWSAuth)
     //console.log(`requestSigningParams: ${JSON.stringify(requestSigningParams)}`);
     let reqUrl = context.request.getUrl();
     let uriParsed = URL.parse(reqUrl);
@@ -100,27 +112,29 @@ module.exports.requestHooks = [ async (context) => {
     request.headers.host = uriParsed.host;
     request.headers['X-Amz-Security-Token'] = requestSigningParams.sessionToken;
     request.body = context.request.getBodyText();
-    request.service = 'appsync';
+    request.service = requestSigningParams.awsService;
     if(context.request.hasHeader('Content-Type')){
         request.headers['Content-Type'] = context.request.getHeader('Content-Type');
     }
 
     let signingKeys = {accessKeyId: requestSigningParams.accessKeyId, secretAccessKey: requestSigningParams.secretKey};
-    let signedParam = aws4.sign(request, signingKeys);
-
-
-
-    if (context.request.getMethod().toUpperCase() === 'POST') {
-        context.request.setHeader('Content-Type', 'application/json');
+    // console.log("22::> " + JSON.stringify(signingKeys, null, 4))
+    try {
+        let signedParam = aws4.sign(request, signingKeys);
+        //context.request.setHeader('Content-Type', 'application/json');
         context.request.setHeader('Authorization', signedParam.headers.Authorization);
         context.request.setHeader('X-Amz-Security-Token', signedParam.headers['X-Amz-Security-Token']);
         context.request.setHeader('X-Amz-Date', signedParam.headers["X-Amz-Date"]);
         context.request.setHeader('host', signedParam.headers.host);
+        //console.log("signedParam: " + JSON.stringify(signedParam, null, 4))
+    } catch (e) {
+        console.trace("e: ", e);
+        throw e;
     }
+    // if (context.request.getMethod().toUpperCase() === 'POST') {
+    //
+    // }
 }];
-
-
-
 
 // Main run function
 const run = async (context, userIdentity, password, awsIdentityPoolId, awsDevIdentityProvider, awsRegion, awsService, awsAccessKeyId, awsSecretAccessKey) => {
@@ -135,15 +149,15 @@ const run = async (context, userIdentity, password, awsIdentityPoolId, awsDevIde
         }
     }
 
-    console.log(`Run arguments: \n
-            userIdentity: ${userIdentity}
-            password: ${password}
-            awsIdentityPoolId: ${awsIdentityPoolId}
-            awsDevIdentityProvider: ${awsDevIdentityProvider}
-            awsRegion: ${awsRegion}
-            awsService: ${awsService}
-            accessKeyId: ${awsAccessKeyId}
-            secretAccessKey: ${awsSecretAccessKey}`);
+    // console.log(`Run arguments: \n
+    //         userIdentity: ${userIdentity}
+    //         password: ${password}
+    //         awsIdentityPoolId: ${awsIdentityPoolId}
+    //         awsDevIdentityProvider: ${awsDevIdentityProvider}
+    //         awsRegion: ${awsRegion}
+    //         awsService: ${awsService}
+    //         accessKeyId: ${awsAccessKeyId}
+    //         secretAccessKey: ${awsSecretAccessKey}`);
 
     if(typeof(userIdentity) === 'undefined') {
         throw Error('userIdentity must not be null or empty.')
@@ -175,16 +189,17 @@ const run = async (context, userIdentity, password, awsIdentityPoolId, awsDevIde
         requestSigningParams.sessionToken = userCredentialData.Credentials.SessionToken;
         requestSigningParams.accessKeyId = userCredentialData.Credentials.AccessKeyId;
         requestSigningParams.secretKey = userCredentialData.Credentials.SecretKey;
-        console.log("Saving requestSigningParam set.\nValue:", JSON.stringify(requestSigningParams, null, 4));
+        //console.log("Saving requestSigningParam set.\nValue:", JSON.stringify(userCredentialData, null, 4));
     } catch (e) {
-
         console.error("Failed due to error:" + e)
-        //throw e;
+        throw e;
     }
 
-    console.log("Saving requestSigningParam set.\nValue:", JSON.stringify(requestSigningParams, null, 4));
+    //console.log("Saving requestSigningParam set.\nValue:", JSON.stringify(requestSigningParams, null, 4));
+    //console.log(requestSigningParams.userIdentityId)
     await context.store.setItem("AwsUserSigningParams", JSON.stringify(requestSigningParams));
-    return JSON.stringify(requestSigningParams, null, 4);
+    return "enableAWSAuth" //{"enableAWSAuth" : requestSigningParams.userIdentityId };
+    //return JSON.stringify(requestSigningParams, null, 4);
 };
 
 module.exports.templateTags = [{

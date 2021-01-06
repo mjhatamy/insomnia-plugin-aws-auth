@@ -24,6 +24,3 @@
  *
  * Written by Majid Hatami <info@marands.io>, 1 2021
  */
-
-const AWS   = require('aws-sdk');
-const aws4  = require('aws4');
