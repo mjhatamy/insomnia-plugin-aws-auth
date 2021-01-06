@@ -1,0 +1,37 @@
+{
+  "name": "insomna-plugin-aws-auth",
+  "version": "1.0.0",
+  "description": "Plugin for Insomnia to provide Cognito JWT token from AWS",
+  "main": "./src/plugin.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Majid Hatami",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mjhatamy/insomnia-plugin-aws-auth.git"
+  },
+  "keywords": [
+    "insomnia",
+    "plugin",
+    "AWS",
+    "Cognito",
+    "AppSync"
+  ],
+  "publisher": {
+    "name": "Majid Hatami",
+    "icon": "https://marands.io/projects/icons/insomnia-plugin-aws-auth/hubicon.ico"
+  },
+  "insomnia": {
+    "name": "awsauth",
+    "description": "Plugin for Insomnia to provide Cognito token (Normal or Developer identity) from AWS",
+    "images": {
+      "icon": "src/assets/icon.png"
+    }
+  },
+  "dependencies": {
+    "aws-sdk": "^2.822.0",
+    "aws4": "^1.11.0"
+  }
+}
