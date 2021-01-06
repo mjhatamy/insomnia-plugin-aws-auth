@@ -94,7 +94,7 @@ module.exports.requestHooks = [ async (context) => {
     let enableAWSAuth = context.request.getHeader('enableAWSAuth');
     if(typeof(enableAWSAuth) === 'undefined' || enableAWSAuth == null ) {
         console.log("Not set to add authorization headers")
-        //return;
+        return;
     }
     //context.request.removeHeader('enableAWSAuth');
 
