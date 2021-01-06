@@ -10,7 +10,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mjhatamy/insomnia-plugin-aws-auth.git"
+    "url": "git+https://github.com/mjhatamy/insomnia-plugin-aws-auth.git"
   },
   "keywords": [
     "insomnia",
@@ -33,5 +33,10 @@
   "dependencies": {
     "aws-sdk": "^2.822.0",
     "aws4": "^1.11.0"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/mjhatamy/insomnia-plugin-aws-auth/issues"
+  },
+  "homepage": "https://github.com/mjhatamy/insomnia-plugin-aws-auth#readme",
+  "devDependencies": {}
 }
